@@ -1,38 +1,35 @@
 import React, { Component, useState } from 'react';
-import { Text, View, Image, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 
-const AuthScreen = () => {
+const RegistScreen = () => {
+  const [username, setUsername] = useState('');
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-  const { height } = useWindowDimensions();
+  const [passwordRepeat, setPasswordRepeat] = useState('');
+
   const navigation = useNavigation();
 
-  const onSignIn = () => {
-    navigation.navigate('Home');
-  };
+  const { height } = useWindowDimensions();
 
   const onRegister = () => {
-    navigation.navigate('Regist');
+    navigation.navigate('Home');
   };
 
   const onSignInWithGoogle = () => {};
 
-  const onForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
+  const onHaveAnAccount = () => {
+    navigation.navigate('Auth');
   };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <View style={styles.wrp}>
-        <Text style={styles.header}> Denyushki </Text>
-        <Image
-          resizeMode='contain'
-          source={require('../../assets/images/rich-boy.gif')}
-          style={[styles.image, { height: height * 0.3, maxWidth: 400 }]}
-        />
+        <Text style={[styles.header, { marginBottom: 50 }]}> Registration </Text>
+
+        <CustomInput value={username} setValue={setUsername} placeholder={'Username'} />
         <CustomInput value={login} setValue={setLogin} placeholder={'Login'} />
         <CustomInput
           value={password}
@@ -40,9 +37,13 @@ const AuthScreen = () => {
           placeholder={'Password'}
           secureTextEntry
         />
-        <CustomButton text={'Sign in'} onPress={onSignIn} />
-        <CustomButton text={'Forgot password?'} onPress={onForgotPassword} type={'TERTIARY'} />
-
+        <CustomInput
+          value={passwordRepeat}
+          setValue={setPasswordRepeat}
+          placeholder={'Repeat password'}
+          secureTextEntry
+        />
+        <CustomButton text={'Register'} onPress={onRegister} />
         <View style={{ marginTop: 100 }}>
           <CustomButton
             text={'Sign in with Google'}
@@ -50,9 +51,10 @@ const AuthScreen = () => {
             type={'SECONDARY'}
           />
         </View>
+
         <CustomButton
-          text={`Don't have an account? Register`}
-          onPress={onRegister}
+          text={'Have an account? Sign in'}
+          onPress={onHaveAnAccount}
           type={'TERTIARY'}
         />
       </View>
@@ -67,10 +69,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: { marginTop: 50, fontWeight: 'bold', fontSize: 30, color: '#627057' },
-  image: {
-    width: '70%',
-    maxWidth: 400,
-  },
 });
 
-export default AuthScreen;
+export default RegistScreen;
