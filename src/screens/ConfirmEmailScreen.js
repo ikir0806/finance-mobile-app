@@ -3,10 +3,10 @@ import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 const ConfirmEmailScreen = () => {
-  const [username, setUsername] = useState('');
-  const [code, setCode] = useState('');
+  const { control, handleSubmit } = useForm();
 
   const navigation = useNavigation();
 
@@ -21,15 +21,25 @@ const ConfirmEmailScreen = () => {
   const onResendCode = () => {};
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={[styles.header, { marginBottom: 50 }]}> Confirm your email </Text>
 
-        <CustomInput value={username} setValue={setUsername} placeholder={'Username'} />
-        <CustomInput value={code} setValue={setCode} placeholder={'Enter your code'} />
+        <CustomInput
+          name={'login'}
+          control={control}
+          placeholder={'Login'}
+          rules={{ required: 'Login can not be empty' }}
+        />
+        <CustomInput
+          name={'code'}
+          control={control}
+          placeholder={'Enter your code'}
+          rules={{ required: 'Code can not be empty' }}
+        />
 
         <View style={{ marginTop: 20, width: '100%', alignItems: 'center', gap: 20 }}>
-          <CustomButton text={'Confirm'} onPress={onConfirm} />
+          <CustomButton text={'Confirm'} onPress={handleSubmit(onConfirm)} />
           <CustomButton text={'Resend code'} onPress={onResendCode} type={'SECONDARY'} />
           <CustomButton text={'Back to sign in'} onPress={onHBackToSignIn} type={'TERTIARY'} />
         </View>

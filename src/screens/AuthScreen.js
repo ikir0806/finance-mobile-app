@@ -3,10 +3,10 @@ import { Text, View, Image, StyleSheet, useWindowDimensions, ScrollView } from '
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 const AuthScreen = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
+  const { control, handleSubmit } = useForm();
   const { height } = useWindowDimensions();
   const navigation = useNavigation();
 
@@ -25,7 +25,7 @@ const AuthScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={styles.header}> Denyushki </Text>
         <Image
@@ -33,14 +33,20 @@ const AuthScreen = () => {
           source={require('../../assets/images/rich-boy.gif')}
           style={[styles.image, { height: height * 0.3, maxWidth: 400 }]}
         />
-        <CustomInput value={login} setValue={setLogin} placeholder={'Login'} />
         <CustomInput
-          value={password}
-          setValue={setPassword}
+          name={'login'}
+          control={control}
+          placeholder={'Login'}
+          rules={{ required: 'Login can not be empty' }}
+        />
+        <CustomInput
+          name={'password'}
+          control={control}
           placeholder={'Password'}
+          rules={{ required: 'Password can not be empty' }}
           secureTextEntry
         />
-        <CustomButton text={'Sign in'} onPress={onSignIn} />
+        <CustomButton text={'Sign in'} onPress={handleSubmit(onSignIn)} />
         <CustomButton text={'Forgot password?'} onPress={onForgotPassword} type={'TERTIARY'} />
 
         <View style={{ marginTop: 100 }}>

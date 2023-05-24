@@ -3,12 +3,11 @@ import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 const RegistScreen = () => {
-  const [username, setUsername] = useState('');
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordRepeat, setPasswordRepeat] = useState('');
+  const { control, handleSubmit, watch } = useForm();
+  const password = watch('password');
 
   const navigation = useNavigation();
 
@@ -25,25 +24,39 @@ const RegistScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={[styles.header, { marginBottom: 50 }]}> Registration </Text>
 
-        <CustomInput value={username} setValue={setUsername} placeholder={'Username'} />
-        <CustomInput value={login} setValue={setLogin} placeholder={'Login'} />
         <CustomInput
-          value={password}
-          setValue={setPassword}
+          name={'login'}
+          control={control}
+          placeholder={'Login'}
+          rules={{ required: 'Login can not be empty' }}
+        />
+        <CustomInput
+          name={'email'}
+          control={control}
+          placeholder={'Email'}
+          rules={{ required: 'Email can not be empty' }}
+        />
+        <CustomInput
+          name={'password'}
+          control={control}
           placeholder={'Password'}
+          rules={{ required: 'Password can not be empty' }}
           secureTextEntry
         />
         <CustomInput
-          value={passwordRepeat}
-          setValue={setPasswordRepeat}
+          name={'passwordRepeat'}
+          control={control}
           placeholder={'Repeat password'}
+          rules={{
+            validate: (value) => value == password || 'Password do not match',
+          }}
           secureTextEntry
         />
-        <CustomButton text={'Register'} onPress={onRegister} />
+        <CustomButton text={'Register'} onPress={handleSubmit(onRegister)} />
         <View style={{ marginTop: 100 }}>
           <CustomButton
             text={'Sign in with Google'}

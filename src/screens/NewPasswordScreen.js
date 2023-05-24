@@ -3,10 +3,10 @@ import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 const NewPasswordScreen = () => {
-  const [password, setPassword] = useState('');
-  const [passwordRepeat, setPasswordRepeat] = useState('');
+  const { control, handleSubmit } = useForm();
 
   const { height } = useWindowDimensions();
 
@@ -21,25 +21,29 @@ const NewPasswordScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={[styles.header, { marginBottom: 50 }]}> Enter your new password </Text>
 
         <CustomInput
-          value={password}
-          setValue={setPassword}
+          name={'password'}
+          control={control}
           placeholder={'Password'}
+          rules={{ required: 'Password can not be empty' }}
           secureTextEntry
         />
         <CustomInput
-          value={passwordRepeat}
-          setValue={setPasswordRepeat}
+          name={'passwordRepeat'}
+          control={control}
           placeholder={'Repeat password'}
+          rules={{
+            validate: (value) => value == password || 'Password do not match',
+          }}
           secureTextEntry
         />
 
         <View style={{ marginTop: 20, width: '100%', alignItems: 'center', gap: 20 }}>
-          <CustomButton text={'Submit'} onPress={onSubmit} />
+          <CustomButton text={'Submit'} onPress={handleSubmit(onSubmit)} />
           <CustomButton text={'Back to sign in'} onPress={onHBackToSignIn} type={'TERTIARY'} />
         </View>
       </View>

@@ -3,9 +3,10 @@ import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { useForm } from 'react-hook-form';
 
 const ForgotPasswordScreen = () => {
-  const [username, setUsername] = useState('');
+  const { control, handleSubmit } = useForm();
 
   const navigation = useNavigation();
 
@@ -20,14 +21,19 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={[styles.header, { marginBottom: 50 }]}> Reset you password </Text>
 
-        <CustomInput value={username} setValue={setUsername} placeholder={'Username'} />
+        <CustomInput
+          name={'login'}
+          control={control}
+          placeholder={'Login'}
+          rules={{ required: 'Login can not be empty' }}
+        />
 
         <View style={{ marginTop: 20, width: '100%', alignItems: 'center', gap: 20 }}>
-          <CustomButton text={'Send'} onPress={onSend} />
+          <CustomButton text={'Send'} onPress={handleSubmit(onSend)} />
           <CustomButton text={'Back to sign in'} onPress={onHBackToSignIn} type={'TERTIARY'} />
         </View>
       </View>
