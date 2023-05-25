@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -12,12 +12,20 @@ import {
   Platform,
 } from 'react-native';
 import { Link, useNavigation } from '@react-navigation/native';
+
 import { AntDesign } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
+
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
 import { useForm } from 'react-hook-form';
+import SelectDropdown from 'react-native-select-dropdown';
+import { Chip } from 'react-native-paper';
 
 const HomeScreen = () => {
   const { control, handleSubmit, watch } = useForm();
@@ -28,12 +36,89 @@ const HomeScreen = () => {
   const [subModalVisible, setSubModalVisible] = useState(false);
 
   const [expenses, setExpenses] = useState(0);
+  const [currentMonth, setCurrentMonth] = useState('');
+  const [currentYear, setCurrentYear] = useState(0);
+
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const years = [2019, 2020, 2021, 2022, 2023];
+
+  const expensesArray = [
+    {
+      month: 'December',
+      year: 2022,
+      expense: 12345,
+    },
+    {
+      month: 'January',
+      year: 2023,
+      expense: 34500,
+    },
+    {
+      month: 'February',
+      year: 2023,
+      expense: 45828,
+    },
+    {
+      month: 'March',
+      year: 2023,
+      expense: 97616,
+    },
+    {
+      month: 'April',
+      year: 2023,
+      expense: 12953,
+    },
+    {
+      month: 'May',
+      year: 2023,
+      expense: 37920,
+    },
+  ];
+
+  useEffect(() => {
+    const month = months[new Date().getMonth()];
+    const year = years.find((year) => year === new Date().getFullYear());
+    setCurrentMonth(month);
+    setCurrentYear(year);
+    setExpenses(expensesArray.find((item) => item.month === month && item.year === year).expense);
+  }, []);
+
+  useEffect(() => {
+    if (currentMonth && currentYear) {
+      const newExpense = expensesArray.find(
+        (item) => item.month === currentMonth && item.year === currentYear,
+      )?.expense;
+      setExpenses(newExpense ? newExpense : 0);
+    }
+  }, [currentMonth, currentYear]);
 
   const onLogOut = () => {
     navigation.navigate('Auth');
   };
 
   const onAddExpense = (number) => {
+    expensesArray.map((item) => {
+      if (item.month === currentMonth && item.year === currentYear) {
+        return {
+          ...item,
+          expense: +number,
+        };
+      }
+    });
     setExpenses(expenses + +number);
   };
 
@@ -52,8 +137,65 @@ const HomeScreen = () => {
         </Pressable>
       </View>
       <View style={styles.expensesWrp}>
-        <Text style={styles.expensesTitle}>Сумма расходов</Text>
-        <Text style={styles.expenses}>{expenses}</Text>
+        <View style={styles.selectsWrp}>
+          <SelectDropdown
+            onSelect={(e) => setCurrentMonth(e)}
+            showsVerticalScrollIndicator={false}
+            rowTextStyle={{
+              color: '#627057',
+            }} /* 
+          rowStyle={{
+            borderWidth: 1,
+            borderColor: '#627057',
+          }} */
+            buttonTextStyle={{
+              color: '#627057',
+            }}
+            buttonStyle={{
+              borderWidth: 1,
+              borderColor: '#627057',
+              borderRadius: 100,
+              width: '60%',
+            }}
+            dropdownStyle={{
+              borderWidth: 3,
+              borderColor: '#627057',
+              borderRadius: 10,
+            }}
+            data={months}
+            defaultValue={currentMonth}
+          />
+          <SelectDropdown
+            onSelect={(e) => setCurrentYear(e)}
+            showsVerticalScrollIndicator={false}
+            rowTextStyle={{
+              color: '#627057',
+            }} /* 
+          rowStyle={{
+            borderWidth: 1,
+            borderColor: '#627057',
+          }} */
+            buttonTextStyle={{
+              color: '#627057',
+            }}
+            buttonStyle={{
+              borderWidth: 1,
+              borderColor: '#627057',
+              borderRadius: 100,
+              width: '40%',
+            }}
+            dropdownStyle={{
+              borderWidth: 3,
+              borderColor: '#627057',
+              borderRadius: 10,
+            }}
+            data={years}
+            defaultValue={currentYear}
+          />
+        </View>
+
+        <Text style={styles.expensesTitle}>Expenses sum</Text>
+        <Text style={styles.expenses}>{expenses.toLocaleString('ru-RU')} &#8381;</Text>
         <View style={styles.buttonsWrp}>
           <Pressable style={styles.roundButtons} onPress={() => setAddModalVisible(true)}>
             <Text style={styles.roundButtonsText}>+</Text>
@@ -62,6 +204,56 @@ const HomeScreen = () => {
             <Text style={styles.roundButtonsText}>-</Text>
           </Pressable>
         </View>
+      </View>
+      <View style={styles.chipWrp}>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <MaterialCommunityIcons name='food-variant' size={24} color='#EAECDF' />}>
+          {`Food 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <Ionicons name='restaurant' size={24} color='#EAECDF' />}>
+          {`Cafe/restaurants 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <Ionicons name='shirt' size={24} color='#EAECDF' />}>
+          {`Clothes 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <FontAwesome name='bus' size={24} color='#EAECDF' />}>
+          {`Transport 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <FontAwesome5 name='bowling-ball' size={24} color='#EAECDF' />}>
+          {`Entertainments 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <AntDesign name='creditcard' size={24} color='#EAECDF' />}>
+          {`Transfers 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <AntDesign name='gift' size={24} color='#EAECDF' />}>
+          {`Gifts/souvenirs 100`} &#8381;
+        </Chip>
+        <Chip
+          textStyle={styles.chipText}
+          style={styles.chip}
+          icon={() => <FontAwesome5 name='money-bill' size={24} color='#EAECDF' />}>
+          {`Others 100`} &#8381;
+        </Chip>
       </View>
       <Modal visible={addModalVisible} transparent style={styles.modal}>
         <KeyboardAvoidingView
@@ -78,7 +270,12 @@ const HomeScreen = () => {
                 <AntDesign name='close' size={40} color='#627057' />
               </Pressable>
 
-              <CustomInput name={'addNumber'} control={control} placeholder={'0'} />
+              <CustomInput
+                name={'addNumber'}
+                inputMode={'numeric'}
+                control={control}
+                placeholder={'0'}
+              />
               <CustomButton text={'Add'} onPress={() => handleSubmit(onAddExpense(addNumber))} />
             </View>
           </ScrollView>
@@ -95,7 +292,12 @@ const HomeScreen = () => {
                 <AntDesign name='close' size={40} color='#627057' />
               </Pressable>
 
-              <CustomInput name={'subNumber'} control={control} placeholder={'0'} />
+              <CustomInput
+                inputMode={'numeric'}
+                name={'subNumber'}
+                control={control}
+                placeholder={'0'}
+              />
               <CustomButton
                 text={'Subtract'}
                 onPress={() => handleSubmit(onSubExpense(subNumber))}
@@ -115,6 +317,27 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  selectsWrp: {
+    gap: 5,
+    width: '80%',
+    flexDirection: 'row',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  chipWrp: {
+    marginLeft: '5%',
+    marginRight: '5%',
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    display: 'flex',
+    gap: 5,
+  },
+  chip: {
+    backgroundColor: '#627057',
+  },
+  chipText: {
+    color: '#EAECDF',
   },
   header: {
     paddingTop: '10%',
@@ -165,7 +388,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'row',
-    width: '70%',
+    width: '80%',
   },
   roundButtons: {
     backgroundColor: '#627057',
