@@ -1,20 +1,39 @@
-import React, { Component, useState } from 'react';
-import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
+import { createUserWithEmailAndPassword } from 'firebase/auth/react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
 
 const RegistScreen = () => {
   const { control, handleSubmit, watch } = useForm();
   const password = watch('password');
+  const email = watch('email');
+  const login = watch('login');
+  const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
-  const { height } = useWindowDimensions();
-
-  const onRegister = () => {
-    navigation.navigate('Home');
+  const onRegister = async () => {
+    try {
+      setLoading(true);
+      await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password).then(async function (
+        userCredential,
+      ) {
+        await setDoc(doc(FIRESTORE_DB, `users/${userCredential.user.uid}`), {
+          login,
+          email: userCredential.user.email,
+        });
+        navigation.navigate('Home');
+      });
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
   };
 
   const onSignInWithGoogle = () => {};
@@ -56,7 +75,11 @@ const RegistScreen = () => {
           }}
           secureTextEntry
         />
-        <CustomButton text={'Register'} onPress={handleSubmit(onRegister)} />
+        {loading ? (
+          <ActivityIndicator color={'#627057'} />
+        ) : (
+          <CustomButton text={'Register'} onPress={handleSubmit(onRegister)} />
+        )}
         <View style={{ marginTop: 100 }}>
           <CustomButton
             text={'Sign in with Google'}
