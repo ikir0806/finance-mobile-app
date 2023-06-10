@@ -1,33 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useContext, useEffect, useState } from 'react';
 import {
-  Text,
-  View,
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-  Pressable,
   KeyboardAvoidingView,
   Modal,
-  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import { Link, useNavigation } from '@react-navigation/native';
 
-import { AntDesign } from '@expo/vector-icons';
-import { SimpleLineIcons } from '@expo/vector-icons';
-import { Feather } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons';
-import { FontAwesome5 } from '@expo/vector-icons';
-
+import {
+  AntDesign,
+  Feather,
+  FontAwesome,
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+  SimpleLineIcons,
+} from '@expo/vector-icons';
+import { useForm } from 'react-hook-form';
+import { Chip } from 'react-native-paper';
+import SelectDropdown from 'react-native-select-dropdown';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
-import { useForm } from 'react-hook-form';
-import SelectDropdown from 'react-native-select-dropdown';
-import { Chip } from 'react-native-paper';
+import AuthProvider, { AuthContext } from '../context/AuthContext';
 
-const HomeScreen = () => {
+const InitialLayout = () => {
   const { control, handleSubmit, watch } = useForm();
   const addNumber = watch('addNumber');
   const subNumber = watch('subNumber');
@@ -38,6 +37,8 @@ const HomeScreen = () => {
   const [expenses, setExpenses] = useState(0);
   const [currentMonth, setCurrentMonth] = useState('');
   const [currentYear, setCurrentYear] = useState(0);
+
+  const { user, initialized } = useContext(AuthContext);
 
   const months = [
     'January',
@@ -94,7 +95,7 @@ const HomeScreen = () => {
     const year = years.find((year) => year === new Date().getFullYear());
     setCurrentMonth(month);
     setCurrentYear(year);
-    setExpenses(expensesArray.find((item) => item.month === month && item.year === year).expense);
+    setExpenses(expensesArray.find((item) => item.month === month && item.year === year)?.expense);
   }, []);
 
   useEffect(() => {
@@ -127,13 +128,13 @@ const HomeScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <Pressable onPress={() => {}}>
-          <Feather name='menu' size={40} color='#EAECDF' />
+          <Feather name="menu" size={40} color="#EAECDF" />
         </Pressable>
         <Pressable onPress={onLogOut}>
-          <SimpleLineIcons name='logout' size={40} color='#EAECDF' />
+          <SimpleLineIcons name="logout" size={40} color="#EAECDF" />
         </Pressable>
       </View>
       <View style={styles.expensesWrp}>
@@ -144,10 +145,10 @@ const HomeScreen = () => {
             rowTextStyle={{
               color: '#627057',
             }} /* 
-          rowStyle={{
-            borderWidth: 1,
-            borderColor: '#627057',
-          }} */
+    rowStyle={{
+      borderWidth: 1,
+      borderColor: '#627057',
+    }} */
             buttonTextStyle={{
               color: '#627057',
             }}
@@ -171,10 +172,10 @@ const HomeScreen = () => {
             rowTextStyle={{
               color: '#627057',
             }} /* 
-          rowStyle={{
-            borderWidth: 1,
-            borderColor: '#627057',
-          }} */
+    rowStyle={{
+      borderWidth: 1,
+      borderColor: '#627057',
+    }} */
             buttonTextStyle={{
               color: '#627057',
             }}
@@ -195,7 +196,7 @@ const HomeScreen = () => {
         </View>
 
         <Text style={styles.expensesTitle}>Expenses sum</Text>
-        <Text style={styles.expenses}>{expenses.toLocaleString('ru-RU')} &#8381;</Text>
+        <Text style={styles.expenses}>{expenses?.toLocaleString('ru-RU')} &#8381;</Text>
         <View style={styles.buttonsWrp}>
           <Pressable style={styles.roundButtons} onPress={() => setAddModalVisible(true)}>
             <Text style={styles.roundButtonsText}>+</Text>
@@ -209,49 +210,49 @@ const HomeScreen = () => {
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <MaterialCommunityIcons name='food-variant' size={24} color='#EAECDF' />}>
+          icon={() => <MaterialCommunityIcons name="food-variant" size={24} color="#EAECDF" />}>
           {`Food 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <Ionicons name='restaurant' size={24} color='#EAECDF' />}>
+          icon={() => <Ionicons name="restaurant" size={24} color="#EAECDF" />}>
           {`Cafe/restaurants 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <Ionicons name='shirt' size={24} color='#EAECDF' />}>
+          icon={() => <Ionicons name="shirt" size={24} color="#EAECDF" />}>
           {`Clothes 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <FontAwesome name='bus' size={24} color='#EAECDF' />}>
+          icon={() => <FontAwesome name="bus" size={24} color="#EAECDF" />}>
           {`Transport 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <FontAwesome5 name='bowling-ball' size={24} color='#EAECDF' />}>
+          icon={() => <FontAwesome5 name="bowling-ball" size={24} color="#EAECDF" />}>
           {`Entertainments 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <AntDesign name='creditcard' size={24} color='#EAECDF' />}>
+          icon={() => <AntDesign name="creditcard" size={24} color="#EAECDF" />}>
           {`Transfers 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <AntDesign name='gift' size={24} color='#EAECDF' />}>
+          icon={() => <AntDesign name="gift" size={24} color="#EAECDF" />}>
           {`Gifts/souvenirs 100`} &#8381;
         </Chip>
         <Chip
           textStyle={styles.chipText}
           style={styles.chip}
-          icon={() => <FontAwesome5 name='money-bill' size={24} color='#EAECDF' />}>
+          icon={() => <FontAwesome5 name="money-bill" size={24} color="#EAECDF" />}>
           {`Others 100`} &#8381;
         </Chip>
       </View>
@@ -260,14 +261,14 @@ const HomeScreen = () => {
           style={{ height: '100%' }}
           enabled
           behavior={Platform.OS === 'android' ? undefined : 'position'}>
-          <ScrollView scrollEnabled={false} keyboardShouldPersistTaps='handled'>
+          <ScrollView scrollEnabled={false} keyboardShouldPersistTaps="handled">
             <View style={styles.modalView}>
               <Pressable
                 style={styles.closeButton}
                 onPress={() => {
                   setAddModalVisible(false);
                 }}>
-                <AntDesign name='close' size={40} color='#627057' />
+                <AntDesign name="close" size={40} color="#627057" />
               </Pressable>
 
               <CustomInput
@@ -286,10 +287,10 @@ const HomeScreen = () => {
           style={{ height: '100%' }}
           enabled
           behavior={Platform.OS === 'android' ? undefined : 'position'}>
-          <ScrollView scrollEnabled={false} keyboardShouldPersistTaps='handled'>
+          <ScrollView scrollEnabled={false} keyboardShouldPersistTaps="handled">
             <View style={styles.modalView}>
               <Pressable style={styles.closeButton} onPress={() => setSubModalVisible(false)}>
-                <AntDesign name='close' size={40} color='#627057' />
+                <AntDesign name="close" size={40} color="#627057" />
               </Pressable>
 
               <CustomInput
@@ -307,6 +308,14 @@ const HomeScreen = () => {
         </KeyboardAvoidingView>
       </Modal>
     </ScrollView>
+  );
+};
+
+const HomeScreen = () => {
+  return (
+    <AuthProvider>
+      <InitialLayout />
+    </AuthProvider>
   );
 };
 

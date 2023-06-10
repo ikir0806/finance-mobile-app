@@ -1,22 +1,20 @@
+import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth/react-native';
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  StyleSheet,
   Text,
   View,
-  Image,
-  StyleSheet,
   useWindowDimensions,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
 } from 'react-native';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
-import { useNavigation } from '@react-navigation/native';
-import { useForm } from 'react-hook-form';
-import { signInWithEmailAndPassword } from 'firebase/auth/react-native';
 import { FIREBASE_AUTH } from '../../firebaseConfig';
-import { Modal } from 'react-native';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
+import CustomModal from '../components/CustomModal';
 
 const AuthScreen = () => {
   const { control, handleSubmit, watch } = useForm();
@@ -30,7 +28,7 @@ const AuthScreen = () => {
   const onSignIn = async () => {
     try {
       setLoading(true);
-      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password).then(() => {
+      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password).then((res) => {
         navigation.navigate('Home');
       });
       setLoading(false);
@@ -52,11 +50,11 @@ const AuthScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View style={styles.wrp}>
         <Text style={styles.header}> Denyushki </Text>
         <Image
-          resizeMode='contain'
+          resizeMode="contain"
           source={require('../../assets/images/rich-boy.gif')}
           style={[styles.image, { height: height * 0.3, maxWidth: 400 }]}
         />
@@ -93,19 +91,11 @@ const AuthScreen = () => {
           type={'TERTIARY'}
         />
       </View>
-      <Modal visible={modalVisible} transparent style={styles.modal}>
-        <KeyboardAvoidingView
-          style={{ height: '100%' }}
-          enabled
-          behavior={Platform.OS === 'android' ? undefined : 'position'}>
-          <ScrollView scrollEnabled={false} keyboardShouldPersistTaps='handled'>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>Authorization Error</Text>
-              <CustomButton text={'Ok'} onPress={() => setModalVisible(false)} />
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </Modal>
+      <CustomModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        text={'Authtorization Error'}
+      />
     </ScrollView>
   );
 };

@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { createUserWithEmailAndPassword } from 'firebase/auth/react-native';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import CustomModal from '../components/CustomModal';
 
 const RegistScreen = () => {
   const { control, handleSubmit, watch } = useForm();
@@ -14,6 +15,7 @@ const RegistScreen = () => {
   const email = watch('email');
   const login = watch('login');
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const navigation = useNavigation();
 
@@ -32,6 +34,7 @@ const RegistScreen = () => {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setModalVisible(true);
       setLoading(false);
     }
   };
@@ -94,6 +97,11 @@ const RegistScreen = () => {
           type={'TERTIARY'}
         />
       </View>
+      <CustomModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        text={'Registration Error'}
+      />
     </ScrollView>
   );
 };
