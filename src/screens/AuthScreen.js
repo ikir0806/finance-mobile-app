@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth/react-native';
+import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -11,7 +12,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
-import { FIREBASE_AUTH } from '../../firebaseConfig';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
 import CustomModal from '../components/CustomModal';
@@ -28,9 +29,45 @@ const AuthScreen = () => {
   const onSignIn = async () => {
     try {
       setLoading(true);
-      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password).then((res) => {
-        navigation.navigate('Home');
-      });
+      await signInWithEmailAndPassword(FIREBASE_AUTH, email, password).then(
+        async (userCredential) => {
+          await updateDoc(doc(FIRESTORE_DB, `users/${userCredential.user.uid}`), {
+            expensesArray: [
+              {
+                month: 'December',
+                year: 2022,
+                expense: 12345,
+              },
+              {
+                month: 'January',
+                year: 2023,
+                expense: 34500,
+              },
+              {
+                month: 'February',
+                year: 2023,
+                expense: 45828,
+              },
+              {
+                month: 'March',
+                year: 2023,
+                expense: 97616,
+              },
+              {
+                month: 'April',
+                year: 2023,
+                expense: 12953,
+              },
+              {
+                month: 'May',
+                year: 2023,
+                expense: 37920,
+              },
+            ],
+          });
+          navigation.navigate('Home');
+        },
+      );
       setLoading(false);
     } catch (error) {
       console.log(error);

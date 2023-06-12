@@ -19,9 +19,12 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons';
+import { signOut } from 'firebase/auth/react-native';
+import { doc, getDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { Chip } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import CustomButton from '../components/CustomButton';
 import CustomInput from '../components/CustomInput';
 import AuthProvider, { AuthContext } from '../context/AuthContext';
@@ -37,6 +40,7 @@ const InitialLayout = () => {
   const [expenses, setExpenses] = useState(0);
   const [currentMonth, setCurrentMonth] = useState('');
   const [currentYear, setCurrentYear] = useState(0);
+  const [expensesArray, setExpensesArray] = useState([]);
 
   const { user, initialized } = useContext(AuthContext);
 
@@ -56,47 +60,60 @@ const InitialLayout = () => {
   ];
 
   const years = [2019, 2020, 2021, 2022, 2023];
+  //   {
+  //     month: 'December',
+  //     year: 2022,
+  //     expense: 12345,
+  //   },
+  //   {
+  //     month: 'January',
+  //     year: 2023,
+  //     expense: 34500,
+  //   },
+  //   {
+  //     month: 'February',
+  //     year: 2023,
+  //     expense: 45828,
+  //   },
+  //   {
+  //     month: 'March',
+  //     year: 2023,
+  //     expense: 97616,
+  //   },
+  //   {
+  //     month: 'April',
+  //     year: 2023,
+  //     expense: 12953,
+  //   },
+  //   {
+  //     month: 'May',
+  //     year: 2023,
+  //     expense: 37920,
+  //   },
+  // ];
 
-  const expensesArray = [
-    {
-      month: 'December',
-      year: 2022,
-      expense: 12345,
-    },
-    {
-      month: 'January',
-      year: 2023,
-      expense: 34500,
-    },
-    {
-      month: 'February',
-      year: 2023,
-      expense: 45828,
-    },
-    {
-      month: 'March',
-      year: 2023,
-      expense: 97616,
-    },
-    {
-      month: 'April',
-      year: 2023,
-      expense: 12953,
-    },
-    {
-      month: 'May',
-      year: 2023,
-      expense: 37920,
-    },
-  ];
+  const getExpencesArray = async () => {
+    try {
+      let expensesArray = await getDoc(doc(FIRESTORE_DB, `users/${user.uid}`));
+      expensesArray = expensesArray.data()?.expensesArray;
+      setExpensesArray(expensesArray);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    const month = months[new Date().getMonth()];
-    const year = years.find((year) => year === new Date().getFullYear());
-    setCurrentMonth(month);
-    setCurrentYear(year);
-    setExpenses(expensesArray.find((item) => item.month === month && item.year === year)?.expense);
-  }, []);
+    if (user) {
+      getExpencesArray();
+      const month = months[new Date().getMonth()];
+      const year = years.find((year) => year === new Date().getFullYear());
+      setCurrentMonth(month);
+      setCurrentYear(year);
+      setExpenses(
+        expensesArray.find((item) => item.month === month && item.year === year)?.expense,
+      );
+    }
+  }, [user]);
 
   useEffect(() => {
     if (currentMonth && currentYear) {
@@ -108,6 +125,7 @@ const InitialLayout = () => {
   }, [currentMonth, currentYear]);
 
   const onLogOut = () => {
+    signOut(FIREBASE_AUTH);
     navigation.navigate('Auth');
   };
 

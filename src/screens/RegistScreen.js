@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-import { useForm } from 'react-hook-form';
 import { createUserWithEmailAndPassword } from 'firebase/auth/react-native';
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../../firebaseConfig';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
 import CustomModal from '../components/CustomModal';
 
 const RegistScreen = () => {
@@ -22,15 +22,22 @@ const RegistScreen = () => {
   const onRegister = async () => {
     try {
       setLoading(true);
-      await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password).then(async function (
-        userCredential,
-      ) {
-        await setDoc(doc(FIRESTORE_DB, `users/${userCredential.user.uid}`), {
-          login,
-          email: userCredential.user.email,
-        });
-        navigation.navigate('Home');
-      });
+      await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password).then(
+        async (userCredential) => {
+          await setDoc(doc(FIRESTORE_DB, `users/${userCredential.user.uid}`), {
+            login,
+            email: userCredential.user.email,
+            expencesArray: [
+              {
+                month: 'June',
+                year: 2023,
+                expence: 0,
+              },
+            ],
+          });
+          navigation.navigate('Home');
+        },
+      );
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -46,7 +53,7 @@ const RegistScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View style={styles.wrp}>
         <Text style={[styles.header, { marginBottom: 50 }]}> Registration </Text>
 
