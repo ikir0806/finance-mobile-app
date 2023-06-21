@@ -1,6 +1,6 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
-import { Text, View, TextInput, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 const CustomInput = ({
   inputMode = 'none',
@@ -15,6 +15,7 @@ const CustomInput = ({
     const toNumber = Number(event.split(/\s+/).join(''));
     const toLocale = toNumber.toLocaleString('ru-RU');
     setNumber(toLocale);
+    return toLocale;
   };
 
   return (
@@ -28,11 +29,12 @@ const CustomInput = ({
             <TextInput
               inputMode={inputMode}
               placeholderTextColor={'#627057'}
-              defaultValue=''
+              defaultValue=""
               value={inputMode === 'numeric' ? number : undefined}
               onChangeText={
                 inputMode === 'numeric'
                   ? (e) => {
+                      onChange(e);
                       handleChange(e);
                     }
                   : onChange

@@ -27,11 +27,36 @@ const RegistScreen = () => {
           await setDoc(doc(FIRESTORE_DB, `users/${userCredential.user.uid}`), {
             login,
             email: userCredential.user.email,
-            expencesArray: [
+            expensesArray: [
               {
-                month: 'June',
+                month: 'December',
+                year: 2022,
+                expense: 12345,
+              },
+              {
+                month: 'January',
                 year: 2023,
-                expence: 0,
+                expense: 34500,
+              },
+              {
+                month: 'February',
+                year: 2023,
+                expense: 45828,
+              },
+              {
+                month: 'March',
+                year: 2023,
+                expense: 97616,
+              },
+              {
+                month: 'April',
+                year: 2023,
+                expense: 12953,
+              },
+              {
+                month: 'May',
+                year: 2023,
+                expense: 37920,
               },
             ],
           });

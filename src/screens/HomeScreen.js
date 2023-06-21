@@ -20,7 +20,7 @@ import {
   SimpleLineIcons,
 } from '@expo/vector-icons';
 import { signOut } from 'firebase/auth/react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { Chip } from 'react-native-paper';
 import SelectDropdown from 'react-native-select-dropdown';
@@ -110,14 +110,28 @@ const InitialLayout = () => {
       setCurrentMonth(month);
       setCurrentYear(year);
       setExpenses(
-        expensesArray.find((item) => item.month === month && item.year === year)?.expense,
+        expensesArray.find((item) => item?.month === month && item.year === year)?.expense,
       );
     }
   }, [user]);
 
+  // useEffect(() => {
+  //   if (!user) {
+  //     return;
+  //   }
+  //   const unsubscribe = onSnapshot(doc(FIRESTORE_DB, `users/${user?.uid}`), (doc) => {
+  //     console.log(doc.data());
+  //     if (doc.exists()) {
+  //       setExpensesArray(doc.data()); // found and setting a user
+  //     }
+  //   });
+
+  //   return unsubscribe;
+  // }, [expensesArray]);
+
   useEffect(() => {
     if (currentMonth && currentYear) {
-      const newExpense = expensesArray.find(
+      const newExpense = expensesArray?.find(
         (item) => item.month === currentMonth && item.year === currentYear,
       )?.expense;
       setExpenses(newExpense ? newExpense : 0);
@@ -129,19 +143,42 @@ const InitialLayout = () => {
     navigation.navigate('Auth');
   };
 
-  const onAddExpense = (number) => {
-    expensesArray.map((item) => {
-      if (item.month === currentMonth && item.year === currentYear) {
+  const onAddExpense = async (number) => {
+    let isFound = false;
+    const newExpensesArray = expensesArray?.map((item) => {
+      if (item?.month === currentMonth && item.year === currentYear) {
+        isFound = true;
         return {
           ...item,
-          expense: +number,
+          expense: (item.expense ? item.expense : 0) + +number,
         };
-      }
+      } else return item;
     });
+    if (!isFound) {
+      newExpensesArray.push({
+        expense: +number,
+        year: currentYear,
+        month: currentMonth,
+      });
+    }
+    await updateDoc(doc(FIRESTORE_DB, `users/${user.uid}`), {
+      expensesArray: newExpensesArray,
+    });
+
+    getExpencesArray();
+    console.log(expensesArray);
     setExpenses(expenses + +number);
   };
 
   const onSubExpense = (number) => {
+    expensesArray.map((item) => {
+      if (item?.month === currentMonth && item.year === currentYear) {
+        return {
+          ...item,
+          expense: item.expenses - +number,
+        };
+      }
+    });
     setExpenses(expenses - +number);
   };
 
@@ -295,7 +332,12 @@ const InitialLayout = () => {
                 control={control}
                 placeholder={'0'}
               />
-              <CustomButton text={'Add'} onPress={() => handleSubmit(onAddExpense(addNumber))} />
+              <CustomButton
+                text={'Add'}
+                onPress={() => {
+                  handleSubmit(onAddExpense(addNumber));
+                }}
+              />
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
