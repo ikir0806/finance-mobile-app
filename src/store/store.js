@@ -2,9 +2,14 @@ import { makeAutoObservable } from 'mobx';
 
 class ExpensesStore {
   expenses = 0;
+  expensesArray = [];
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  setExpensesArray(array) {
+    this.expensesArray = array;
   }
 
   setExpenses(value) {
@@ -20,4 +25,5 @@ class ExpensesStore {
   }
 }
 
-export default ExpensesStore;
+const expensesStore = new ExpensesStore();
+export default expensesStore;
