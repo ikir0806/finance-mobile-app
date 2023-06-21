@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Modal,
@@ -92,21 +92,23 @@ const InitialLayout = () => {
   //   },
   // ];
 
-  const getExpencesArray = async () => {
+  const getExpensesArray = async () => {
     try {
       let expensesArray = await getDoc(doc(FIRESTORE_DB, `users/${user.uid}`));
       expensesArray = expensesArray.data()?.expensesArray;
+
       setExpensesArray(expensesArray);
     } catch (error) {
       console.log(error);
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (user) {
-      getExpencesArray();
+      getExpensesArray();
       const month = months[new Date().getMonth()];
       const year = years.find((year) => year === new Date().getFullYear());
+
       setCurrentMonth(month);
       setCurrentYear(year);
       setExpenses(
@@ -114,20 +116,6 @@ const InitialLayout = () => {
       );
     }
   }, [user]);
-
-  // useEffect(() => {
-  //   if (!user) {
-  //     return;
-  //   }
-  //   const unsubscribe = onSnapshot(doc(FIRESTORE_DB, `users/${user?.uid}`), (doc) => {
-  //     console.log(doc.data());
-  //     if (doc.exists()) {
-  //       setExpensesArray(doc.data()); // found and setting a user
-  //     }
-  //   });
-
-  //   return unsubscribe;
-  // }, [expensesArray]);
 
   useEffect(() => {
     if (currentMonth && currentYear) {
@@ -165,8 +153,7 @@ const InitialLayout = () => {
       expensesArray: newExpensesArray,
     });
 
-    getExpencesArray();
-    console.log(expensesArray);
+    getExpensesArray();
     setExpenses(expenses + +number);
   };
 

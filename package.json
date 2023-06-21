@@ -11,12 +11,14 @@
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
     "@expo/webpack-config": "^18.0.1",
+    "@react-native-async-storage/async-storage": "1.17.11",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "expo": "~48.0.15",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.22.1",
     "link": "^1.5.1",
+    "mobx": "^6.9.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.43.9",
@@ -28,8 +30,7 @@
     "react-native-select-dropdown": "^3.3.3",
     "react-native-svg": "13.4.0",
     "react-native-vector-icons": "^9.2.0",
-    "react-native-web": "~0.18.10",
-    "@react-native-async-storage/async-storage": "1.17.11"
+    "react-native-web": "~0.18.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
