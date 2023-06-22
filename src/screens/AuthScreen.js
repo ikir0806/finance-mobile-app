@@ -50,11 +50,11 @@ const AuthScreen = () => {
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
         <Text style={styles.header}> Denyushki </Text>
         <Image
-          resizeMode="contain"
+          resizeMode='contain'
           source={require('../../assets/images/rich-boy.gif')}
           style={[styles.image, { height: height * 0.3, maxWidth: 400 }]}
         />

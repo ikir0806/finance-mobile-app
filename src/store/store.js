@@ -3,13 +3,12 @@ import { makeAutoObservable } from 'mobx';
 class ExpensesStore {
   expenses = 0;
   expensesArray = [];
+  currentMonth = null;
+  currentYear = null;
+  categories = [];
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  setExpensesArray(array) {
-    this.expensesArray = array;
   }
 
   setExpenses(value) {
@@ -21,7 +20,23 @@ class ExpensesStore {
   }
 
   subExpenses(value) {
-    this.expenses -= -value;
+    this.expenses -= +value;
+  }
+
+  setExpensesArray(array) {
+    this.expensesArray = array;
+  }
+
+  setCurrentMonth(value) {
+    this.currentMonth = value;
+  }
+
+  setCurrentYear(value) {
+    this.currentYear = value;
+  }
+
+  setCategories(array) {
+    this.categories = array;
   }
 }
 
