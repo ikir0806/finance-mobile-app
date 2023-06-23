@@ -1,15 +1,21 @@
-import React, { Component } from 'react';
-import { Text, Pressable, StyleSheet } from 'react-native';
+import React from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
-const CustomButton = ({ onPress, text, type = 'PRIMARY' }) => {
+const CustomButton = ({ onPress, text, type = 'PRIMARY', disabled = false }) => {
   return (
-    <Pressable onPress={onPress} style={[styles.container, styles[`container_${type}`]]}>
+    <Pressable
+      disabled={disabled}
+      onPress={onPress}
+      style={[styles.container, styles[`container_${type}`], disabled && styles.opacity]}>
       <Text style={[styles.text, styles[`text_${type}`]]}>{text}</Text>
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
+  opacity: {
+    opacity: 0.7,
+  },
   container: {
     alignItems: 'center',
     width: '70%',

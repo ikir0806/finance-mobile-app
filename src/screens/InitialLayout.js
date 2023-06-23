@@ -100,6 +100,11 @@ const InitialLayout = () => {
       value: 'others',
       label: 'Others',
     },
+    {
+      key: 8,
+      value: 'health',
+      label: 'Health',
+    },
   ];
 
   const years = [2019, 2020, 2021, 2022, 2023];
@@ -113,10 +118,11 @@ const InitialLayout = () => {
         const year = years.find((year) => year === new Date().getFullYear());
         expensesStore.setCurrentMonth(month);
         expensesStore.setCurrentYear(year);
-        expensesStore.setExpenses(
-          expensesStore.expensesArray.find((item) => item?.month === month && item.year === year)
-            ?.expense,
+        const newExpensesObj = expensesStore.expensesArray.find(
+          (item) => item?.month === month && item.year === year,
         );
+        expensesStore.setExpenses(newExpensesObj?.expense ? newExpensesObj?.expense : 0);
+        expensesStore.setCategories(newExpensesObj?.categories ? newExpensesObj?.categories : {});
         setLoading(false);
       });
     } catch (error) {
@@ -133,11 +139,12 @@ const InitialLayout = () => {
 
   useEffect(() => {
     if (expensesStore.currentMonth && expensesStore.currentYear) {
-      const newExpense = expensesStore.expensesArray?.find(
+      const newExpensesObj = expensesStore.expensesArray.find(
         (item) =>
-          item.month === expensesStore.currentMonth && item.year === expensesStore.currentYear,
-      )?.expense;
-      expensesStore.setExpenses(newExpense ? newExpense : 0);
+          item?.month === expensesStore.currentMonth && item.year === expensesStore.currentYear,
+      );
+      expensesStore.setExpenses(newExpensesObj?.expense ? newExpensesObj?.expense : 0);
+      expensesStore.setCategories(newExpensesObj?.categories ? newExpensesObj?.categories : {});
     }
   }, [expensesStore.currentMonth, expensesStore.currentYear]);
 
@@ -149,46 +156,63 @@ const InitialLayout = () => {
   };
 
   const onAddExpense = async (number) => {
+    if (!number) return;
     let isFound = false;
-    const categories = [];
+    let categories = {};
     const newExpensesArray = expensesStore.expensesArray?.map((item) => {
       if (item?.month === expensesStore.currentMonth && item.year === expensesStore.currentYear) {
         isFound = true;
+        categories = {
+          ...item.categories,
+          [category]: (item.categories?.[category] ? item.categories?.[category] : 0) + +number,
+        };
         return {
           ...item,
           expense: (item.expense ? item.expense : 0) + +number,
-          categories: {
-            ...item.categories,
-            [category]: (item.categories?.[category] ? item.categories?.[category] : 0) + +number,
-          },
+          categories: categories,
         };
       } else return item;
     });
     if (!isFound) {
+      categories = {
+        ...item.categories,
+        [category]: (item.categories?.[category] ? item.categories?.[category] : 0) + +number,
+      };
       newExpensesArray.push({
         expense: +number,
         year: expensesStore.currentYear,
         month: expensesStore.currentMonth,
+        categories: categories,
       });
     }
-
+    expensesStore.setCategories(categories);
     expensesStore.setExpensesArray(newExpensesArray);
     await updateDoc(doc(FIRESTORE_DB, `users/${user.uid}`), {
       expensesArray: newExpensesArray,
     });
 
     expensesStore.addExpenses(number);
+    setCategory(null);
   };
 
   const onSubExpense = async (number) => {
+    if (!number) return;
     let isFound = false;
+    let categories = {};
     const newExpensesArray = expensesStore.expensesArray?.map((item) => {
       if (item?.month === expensesStore.currentMonth && item.year === expensesStore.currentYear) {
         isFound = true;
+        const newCategoryValue =
+          (item.categories?.[category] ? item.categories?.[category] : 0) - +number;
+        categories = {
+          ...item.categories,
+          [category]: newCategoryValue > 0 ? newCategoryValue : 0,
+        };
         const result = (item.expense ? item.expense : 0) - +number;
         return {
           ...item,
           expense: result < 0 ? 0 : result,
+          categories: categories,
         };
       } else return item;
     });
@@ -197,14 +221,17 @@ const InitialLayout = () => {
         expense: 0,
         year: expensesStore.currentYear,
         month: expensesStore.currentMonth,
+        categories: categories,
       });
     }
+    expensesStore.setCategories(categories);
     expensesStore.setExpensesArray(newExpensesArray);
     await updateDoc(doc(FIRESTORE_DB, `users/${user.uid}`), {
       expensesArray: newExpensesArray,
     });
 
     expensesStore.subExpenses(number);
+    setCategory(null);
   };
 
   return (
@@ -297,49 +324,64 @@ const InitialLayout = () => {
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <MaterialCommunityIcons name='food-variant' size={24} color='#EAECDF' />}>
-              {`Food 100`} &#8381;
+              Food {expensesStore.categories.food ? expensesStore.categories.food : 0} &#8381;
+            </Chip>
+            <Chip
+              textStyle={styles.chipText}
+              style={styles.chip}
+              icon={() => <FontAwesome name='medkit' size={24} color='#EAECDF' />}>
+              Health {expensesStore.categories.health ? expensesStore.categories.health : 0} &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <Ionicons name='restaurant' size={24} color='#EAECDF' />}>
-              {`Cafe/restaurants 100`} &#8381;
+              Cafe/restaurants {expensesStore.categories.cafe ? expensesStore.categories.cafe : 0}{' '}
+              &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <Ionicons name='shirt' size={24} color='#EAECDF' />}>
-              {`Clothes 100`} &#8381;
+              Clothes {expensesStore.categories.clothes ? expensesStore.categories.clothes : 0}{' '}
+              &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <FontAwesome name='bus' size={24} color='#EAECDF' />}>
-              {`Transport 100`} &#8381;
+              Transport{' '}
+              {expensesStore.categories.transport ? expensesStore.categories.transport : 0} &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <FontAwesome5 name='bowling-ball' size={24} color='#EAECDF' />}>
-              {`Entertainments 100`} &#8381;
+              Entertainments{' '}
+              {expensesStore.categories.entertainments
+                ? expensesStore.categories.entertainments
+                : 0}{' '}
+              &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <AntDesign name='creditcard' size={24} color='#EAECDF' />}>
-              {`Transfers 100`} &#8381;
+              Transfers{' '}
+              {expensesStore.categories.transfers ? expensesStore.categories.transfers : 0} &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <AntDesign name='gift' size={24} color='#EAECDF' />}>
-              {`Gifts/souvenirs 100`} &#8381;
+              Gifts/souvenirs {expensesStore.categories.gifts ? expensesStore.categories.gifts : 0}{' '}
+              &#8381;
             </Chip>
             <Chip
               textStyle={styles.chipText}
               style={styles.chip}
               icon={() => <FontAwesome5 name='money-bill' size={24} color='#EAECDF' />}>
-              {`Others 100`} &#8381;
+              Others {expensesStore.categories.others ? expensesStore.categories.others : 0} &#8381;
             </Chip>
           </View>
         </View>
@@ -394,7 +436,6 @@ const InitialLayout = () => {
                     value: category.value,
                   };
                 })}
-                //defaultValue={}
               />
               <CustomInput
                 name={'addNumber'}
@@ -403,6 +444,7 @@ const InitialLayout = () => {
                 placeholder={'0'}
               />
               <CustomButton
+                disabled={!category}
                 text={'Add'}
                 onPress={() => {
                   handleSubmit(onAddExpense(addNumber));
@@ -425,7 +467,9 @@ const InitialLayout = () => {
               </Pressable>
               <SelectDropdown
                 defaultButtonText={'Select category'}
-                onSelect={(e) => {}}
+                onSelect={(e) => {
+                  setCategory(e.value);
+                }}
                 showsVerticalScrollIndicator={false}
                 rowTextStyle={{
                   color: '#627057',
@@ -439,13 +483,18 @@ const InitialLayout = () => {
                   borderRadius: 100,
                   width: '80%',
                 }}
+                buttonTextAfterSelection={(item) => {
+                  return item.label;
+                }}
+                rowTextForSelection={(item) => {
+                  return item.label;
+                }}
                 dropdownStyle={{
                   borderWidth: 3,
                   borderColor: '#627057',
                   borderRadius: 10,
                 }}
                 data={categories}
-                //defaultValue={}
               />
               <CustomInput
                 inputMode={'numeric'}
@@ -454,10 +503,11 @@ const InitialLayout = () => {
                 placeholder={'0'}
               />
               <CustomButton
+                disabled={!category}
                 text={'Subtract'}
                 onPress={() => {
                   handleSubmit(onSubExpense(subNumber));
-                  setAddModalVisible(false);
+                  setSubModalVisible(false);
                 }}
               />
             </View>
