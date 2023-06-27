@@ -1,19 +1,23 @@
-import React, { Component, useState } from 'react';
-import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { sendPasswordResetEmail } from 'firebase/auth/react-native';
+import React from 'react';
 import { useForm } from 'react-hook-form';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FIREBASE_AUTH } from '../../firebaseConfig';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
 
 const ForgotPasswordScreen = () => {
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, watch } = useForm();
 
   const navigation = useNavigation();
 
-  const { height } = useWindowDimensions();
+  const email = watch('email');
 
   const onSend = () => {
-    navigation.navigate('ConfirmEmail');
+    sendPasswordResetEmail(FIREBASE_AUTH, email)
+      .then(() => navigation.navigate('Auth'))
+      .catch((e) => console.log(console.log(e)));
   };
 
   const onHBackToSignIn = () => {
@@ -26,10 +30,10 @@ const ForgotPasswordScreen = () => {
         <Text style={[styles.header, { marginBottom: 50 }]}> Reset you password </Text>
 
         <CustomInput
-          name={'login'}
+          name={'email'}
           control={control}
-          placeholder={'Login'}
-          rules={{ required: 'Login can not be empty' }}
+          placeholder={'Email'}
+          rules={{ required: 'Email can not be empty' }}
         />
 
         <View style={{ marginTop: 20, width: '100%', alignItems: 'center', gap: 20 }}>

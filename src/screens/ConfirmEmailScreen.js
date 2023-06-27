@@ -1,36 +1,39 @@
-import React, { Component, useState } from 'react';
-import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
-import CustomInput from '../components/CustomInput';
-import CustomButton from '../components/CustomButton';
 import { useNavigation } from '@react-navigation/native';
+import { confirmPasswordReset } from 'firebase/auth/react-native';
+import React from 'react';
 import { useForm } from 'react-hook-form';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import CustomButton from '../components/CustomButton';
+import CustomInput from '../components/CustomInput';
 
 const ConfirmEmailScreen = () => {
-  const { control, handleSubmit } = useForm();
+  const { control, handleSubmit, watch } = useForm();
+
+  const code = watch('code');
 
   const navigation = useNavigation();
 
-  const { height } = useWindowDimensions();
-
   const onConfirm = () => {
-    navigation.navigate('NewPassword');
+    confirmPasswordReset(FIREBASE_AUTH, code)
+      .then(() => {
+        navigation.navigate('Auth');
+      })
+      .catch((error) => console.log(error));
   };
 
-  const onHBackToSignIn = () => {};
+  const onHBackToSignIn = () => {
+    navigation.navigate('Auth');
+  };
 
-  const onResendCode = () => {};
+  const onResendCode = () => {
+    navigation.navigate('ForgotPassword');
+  };
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
       <View style={styles.wrp}>
-        <Text style={[styles.header, { marginBottom: 50 }]}> Confirm your email </Text>
+        <Text style={[styles.header, { marginBottom: 20 }]}> Confirm your email </Text>
 
-        <CustomInput
-          name={'login'}
-          control={control}
-          placeholder={'Login'}
-          rules={{ required: 'Login can not be empty' }}
-        />
         <CustomInput
           name={'code'}
           control={control}
